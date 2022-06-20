@@ -1,3 +1,10 @@
+<!--All template-script-style sections should be in same directions in all files-->
+<template>
+  <div class="header">
+    <h3>Товаров в корзине на: {{ cartPrice }} {{ currency }}</h3>
+  </div>
+</template>
+
 <script>
 export default {
   name: 'Header',
@@ -31,9 +38,3 @@ export default {
     background: #e5e5e5;
   }
 </style>
-
-<template>
-  <div class="header">
-    <h3>Товаров в корзине на: {{ cartPrice }} {{ currency }}</h3>
-  </div>
-</template>

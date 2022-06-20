@@ -10,7 +10,7 @@
         <span>кг</span>
       </div>
 
-      <button @click="addToCart(product)"> В корзину </button>
+      <button @click="addToCart(product)"> В корзину</button>
     </div>
   </div>
 </template>
@@ -23,15 +23,17 @@ export default {
   data() {
     return {
       products: [],
+      width: window.innerWidth
     };
   },
   computed: {
     cardsWidth() {
-      let width = window.innerWidth;
+      let width = this.width;
       let count = 1;
-      if (width > '840px') {
+      //should compare same data types (number to number)
+      if (width > 840) {
         count = 3;
-      } else if ((width > '420px' && width < '840px')) {
+      } else if (width > 420 && width < 840) {
         count = 2;
       }
 
@@ -39,50 +41,62 @@ export default {
     },
   },
   methods: {
+    onResize() {
+      this.width = window.innerWidth
+      this.cardsWidth()
+    },
     startPricesMonitoring() {
-      setInterval(this.getList, 1000);
+      //interval changed on 2s
+      setInterval(this.getList, 2000);
     },
     async getList() {
-      let data = await this.$store.dispatch('getProductsList');
-
-      this.products = data;
+      //inlined variable to shorten code
+      this.products = await this.$store.dispatch('getProductsList');
     },
     addToCart(product) {
-      let amount = this.$refs.amount.find((input) => input.id === product.id).value;
+      // turned let to const in order to save data from rewriting
+      const currentProductAmount = this.$refs.amount.find((input) => input.id === product.id).value;
+      if (currentProductAmount !== '') {
+        const data = {
+          amount: Number(currentProductAmount),
+          price: product.price,
+          title: product.title,
+          id: product.id,
+        };
+        document.getElementById(product.id).value = '';
+        //make emit instead of parent
+        this.$emit('addToCart', data)
+      }
 
-      let data = {
-        amount,
-        price: product.price,
-        title: product.title,
-      };
-      this.$parent.cart.push(data);
     },
   },
   created() {
     this.startPricesMonitoring();
+    window.addEventListener('resize', this.onResize)
   },
 };
 </script>
 
 <style>
-  .product-list {
-    padding: 10px;
-  }
+.product-list {
+  padding: 10px;
+}
 
-  .card {
-    display: inline-block;
-    width: 100%;
-    border: 1px solid #908888;
-    border-radius: 5px;
-    text-align: center;
-    padding: 10px;
-  }
-  .card-image {
-    width: 100%;
-  }
-  button {
-    padding: 5px;
-    margin: 5px;
-  }
+.card {
+  display: inline-block;
+  width: 100%;
+  border: 1px solid #908888;
+  border-radius: 5px;
+  text-align: center;
+  padding: 10px;
+}
 
+.card-image {
+  width: 100%;
+}
+
+button {
+  padding: 5px;
+  margin: 5px;
+}
 </style>
